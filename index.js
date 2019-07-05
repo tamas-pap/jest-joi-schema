@@ -1,20 +1,30 @@
 const toMatchSchema = (received, schema, options) => {
-  const validationResult = schema.validate(received, options);
-  const pass = !validationResult.error;
+	const validationResult = schema.validate(received, options);
+	const pass = !validationResult.error;
+	const error = validationResult.error;
 
-  if (pass) {
-    return {
-      message: () => 'expected not to match schema',
-      pass: true,
-    };
-  } else {
-    return {
-      message: () => 'expected to match schema',
-      pass: false,
-    };
-  }
+	if (pass) {
+		return {
+			message: () => error.annotate(),
+			pass: true,
+		};
+	} else {
+		return {
+			message: () => error.annotate(),
+			pass: false,
+		};
+	}
 };
 
-exports.matchers = {
-  toMatchSchema,
+
+const jestExpect = global.expect;
+
+if (jestExpect !== undefined) {
+	jestExpect.extend({
+		toMatchSchema,
+	});
+} else {
+	console.error(
+		"Unable to find Jest's global expect."
+	);
 };
